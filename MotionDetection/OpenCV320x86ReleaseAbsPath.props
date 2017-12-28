@@ -4,8 +4,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>E:\openCV\opencv320_noTBB\build\install_noTBB\include;E:\openCV\opencv320_noTBB\build\install_noTBB\include\opencv;E:\openCV\opencv320_noTBB\build\install_noTBB\include\opencv2;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\openCV\opencv320_noTBB\build\install_noTBB\x86\vc12\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\3rdParty\install_noTBB\include;..\3rdParty\install_noTBB\include\opencv;..\3rdParty\install_noTBB\include\opencv2;$(IncludePath)</IncludePath>
+    <LibraryPath>..\3rdParty\install_noTBB\x86\vc12\lib;$(LibraryPath)</LibraryPath>
     <_PropertySheetDisplayName>OpenCV320x86ReleaseAbsPath</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
