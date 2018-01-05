@@ -15,11 +15,48 @@ Mat fgMaskMOG2;
 Ptr<BackgroundSubtractor> pMOG2;
 int keyboard;
 
+int do_alarm(Mat image)
+{
+	int cnt = 0;
+	for (int i = 0; i < image.rows; i++)
+	{
+		for (int j = 0; j<image.cols; j++)
+		{
+			if (image.channels() == 3)
+			{
+				if ((int)(image.at<Vec3b>(i, j)[0]) != 0 && (int)(image.at<Vec3b>(i, j)[0]) != 255 &&
+					(int)(image.at<Vec3b>(i, j)[1]) != 0 && (int)(image.at<Vec3b>(i, j)[1]) != 255 &&
+					(int)(image.at<Vec3b>(i, j)[2]) != 0 && (int)(image.at<Vec3b>(i, j)[2]) != 255)
+				{
+					cnt++;
+				}
+
+			}
+			else if (image.channels() == 1)
+			{
+				if ((int)(image.at<uchar>(i, j)) != 0 && (int)(image.at<uchar>(i, j)) != 255)
+				{
+					cnt++;
+				}
+			}
+		}
+	}
+	cout << "cnt = " << cnt << endl;
+	if (cnt > 500)
+	{
+		std::cout << "检测到运动物体！" << std::endl;
+		//return 0;// alarm
+	}
+	//return -1;//not alarm
+	return 0;
+}
+
 int GMM(string videoFilename)
 {
 	//std::string videoFile = "../test.avi";
 
-	cv::VideoCapture capture(videoFilename);
+	cv::VideoCapture capture(0);//cap video set
+	//cv::VideoCapture capture(videoFilename);
 	//capture.open(videoFile);
 
 	if (!capture.isOpened())
@@ -45,7 +82,7 @@ int GMM(string videoFilename)
 	{
 		++frameNo;
 
-		std::cout << frameNo << std::endl;
+		//std::cout << frameNo << std::endl;
 
 		start = static_cast<double>(getTickCount());
 
@@ -54,6 +91,12 @@ int GMM(string videoFilename)
 
 		// 运动前景检测，并更新背景  
 		pMOG2->apply(frame, foreground/*, 0.001*/);
+
+		int alarm_flag = do_alarm(foreground);
+		if (alarm_flag == 0)
+		{
+			//todo : alarm
+		}
 
 		// 腐蚀  
 		cv::erode(foreground, foreground, cv::Mat());
@@ -64,11 +107,12 @@ int GMM(string videoFilename)
 		pMOG2->getBackgroundImage(background);   // 返回当前背景图像  
 
 		time += ((double)getTickCount() - start) / getTickFrequency() * 1000;
-		cout << "Time of Update GMM Background: " << time / frameNo << "ms" << endl;
+		//cout << "Time of Update GMM Background: " << time / frameNo << "ms" << endl;
 
 
 		cv::imshow("video", foreground);
-		cv::imshow("background", frame);
+		cv::imshow("frame", frame);
+		//cv::imshow("background", background);
 
 
 		if (cv::waitKey(25) > 0)
@@ -242,11 +286,13 @@ int main(int argc, char* argv[])
 {
 	// 创建背景建模类
 	pMOG2 = createBackgroundSubtractorMOG2();
+#if 1
 	// for video
 	string inputPath = "D:\\videos\\Record\\20170808_A2.avi";
 	//processVideo(inputPath);
-	//GMM(inputPath);
+	GMM(inputPath);
 
+#else
 	//for pictures
 	cout << "img_576 : " << endl;
 	cout << "GMM_pic time : " <<  endl;
@@ -270,7 +316,6 @@ int main(int argc, char* argv[])
 	processVideo_pic("../3rdParty/pics/img_720/3.jpg");
 	cout << endl;
 
-
 	cout << "img_1080 : " << endl;
 	cout << "GMM_pic time : " << endl;
 	GMM_pic("../3rdParty/pics/img_1080/1.jpeg");
@@ -281,6 +326,7 @@ int main(int argc, char* argv[])
 	processVideo_pic("../3rdParty/pics/img_1080/2.jpeg");
 	processVideo_pic("../3rdParty/pics/img_1080/3.jpeg");
 	cout << endl;
+#endif
 
 	getchar();
 	return 0;
